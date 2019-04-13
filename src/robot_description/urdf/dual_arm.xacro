@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot name="dual_ur" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- common stuff -->
+  <xacro:include filename="$(find robot_description)/urdf/common.gazebo.xacro" />
+  <!-- ur5 -->
+  <xacro:include filename="$(find robot_description)/urdf/ur5_with_gripper.urdf.xacro" />
+  <!-- ur3 -->
+  <xacro:include filename="$(find robot_description)/urdf/ur3_with_suction.urdf.xacro" />
+  <!-- Constant -->
+  <xacro:property name="base_link_x" value="-0.04323996560092813"/>
+  <xacro:property name="base_link_y" value="1.1007437928127923"/>
+  <xacro:property name="base_link_z" value="0.39171758457631023"/>
+  <xacro:property name="base_link_rx" value="-1.659866898842453"/>
+  <xacro:property name="base_link_ry" value="0.010287936949856673"/>
+  <xacro:property name="base_link_rz" value="-3.128729607795987"/>
+  <link name="dual_arm_link"/>
+  <joint name="ur5_mount_joint" type="fixed">
+    <parent link="dual_arm_link"/>
+    <child link="ur5_base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <joint name="ur3_mount_joint" type="fixed">
+    <parent link="dual_arm_link"/>
+    <child link="ur3_base_link"/>
+    <origin xyz="${base_link_x} ${base_link_y} ${base_link_z}" 
+            rpy="${base_link_rx} ${base_link_ry} ${base_link_rz}"/>
+  </joint>
+  <xacro:ur5_robot prefix="ur5_" joint_limited="false"/>
+  <xacro:ur3_robot prefix="ur3_" joint_limited="false"/>
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "dual_arm_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+</robot>
