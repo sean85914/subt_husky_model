@@ -208,7 +208,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   
   <!-- Add Velodyne -->
   <xacro:VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" gpu="true">
-    <origin xyz="0.01976 0 0.75553" rpy="0 0 0" />
+    <origin xyz="0.01976 0 0.75553" rpy="0 0 -1.57" />
   </xacro:VLP-16>
 
   <!-- Add UR5 -->
