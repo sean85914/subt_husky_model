@@ -37,6 +37,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <xacro:arg name="robot_namespace" default="/" />
   <xacro:arg name="urdf_extras" default="empty.urdf" />
+  <xacro:arg name="use_ur5" default="false"/>
 
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="$(find husky_description)/urdf/subt_decorations.urdf.xacro" />
@@ -46,7 +47,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <xacro:include filename="$(find husky_description)/urdf/accessories/sick_lms1xx_mount.urdf.xacro"/>
   <xacro:include filename="$(find husky_description)/urdf/accessories/sensor_arch.urdf.xacro"/>
   <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
-  <xacro:include filename="$(find robot_description)/urdf/ur5_with_gripper.urdf.xacro" />
+  <xacro:include filename="$(find robot_description)/urdf/ur5_with_gripper.urdf.xacro" /> <!-- UR5 -->
+  <xacro:include filename="$(find kinova_description)/urdf/j2n4s300.xacro"/> <!-- Kinova, 4dof -->
+  <xacro:include filename="$(find kinova_description)/urdf/j2n6s300.xacro"/> <!-- Kinova, 6dof -->
   <xacro:include filename="$(find realsense2_camera)/urdf/_d435.urdf.xacro"/>
 
   <xacro:property name="M_PI" value="3.14159"/>
@@ -204,7 +207,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   </gazebo>
 
   <!-- Optional custom includes. -->
-  <xacro:include filename="$(arg urdf_extras)" />
+  <!--ignorexacro:include filename="$(arg urdf_extras)" /-->
   
   <!-- Add Velodyne -->
   <xacro:VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" gpu="true">
@@ -212,12 +215,31 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   </xacro:VLP-16>
 
   <!-- Add UR5 -->
-  <xacro:ur5_robot prefix="ur5_" joint_limited="false" camera_prefix="ur_" tool_length="0.3"/>
-  <joint name="connect_husky_and_ur5" type="fixed">
-    <parent link="base_link"/>
-    <child link="ur5_base_link"/>
-    <origin xyz="0.39503 0.0 0.25253" rpy="0.0 0.0 0.0"/>
-  </joint>
+  <xacro:if value="$(arg use_ur5)">
+    <xacro:ur5_robot prefix="ur5_" joint_limited="false" camera_prefix="ur_" tool_length="0.3"/>
+    <joint name="connect_husky_and_ur5" type="fixed">
+      <parent link="base_link"/>
+      <child link="ur5_base_link"/>
+      <origin xyz="0.39503 0.0 0.25253" rpy="0.0 0.0 0.0"/>
+    </joint>
+  </xacro:if>
+  
+  <!-- Add Kinova -->
+  <xacro:unless value="$(arg use_ur5)">
+    <link name="kinova_base"/>
+    <joint name="connect_husky_and_kinova" type="fixed">
+      <parent link="base_link"/>
+      <child link="kinova_base"/>
+      <origin xyz="0.39503 0.0 0.25253" rpy="0.0 0.0 0.0"/>
+    </joint>
+    <xacro:arg name="use_4dof" default="true"/>
+    <xacro:if value="$(arg use_4dof)">
+      <xacro:j2n4s300 base_parent="kinova_base"/>
+    </xacro:if>
+    <xacro:unless value="$(arg use_4dof)">
+      <xacro:j2n6s300 base_parent="kinova_base"/>
+    </xacro:unless>
+  </xacro:unless>
 
   <!-- Add D435 in front of husky -->
   <xacro:sensor_d435 parent="base_link">
